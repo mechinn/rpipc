@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 try:
+	import pprint
 	import argparse
 	from time import sleep
 	import RPi.GPIO as GPIO
@@ -63,9 +64,9 @@ try:
 		GPIO.setup(inputs, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 		GPIO.setup(outputs, GPIO.OUT, initial=GPIO.HIGH)
 		try:
-			parser = argparse.ArgumentParser(description='Control servers')
+			parser = argparse.ArgumentParser(description='Server Power Control using a Raspberry Pi')
 			parser.add_argument('action', choices=actions.keys(), nargs=1, help='send what signal')
-			parser.add_argument('system', type=int, nargs='*', help='the server(s) which to power control')
+			parser.add_argument('system', type=int, nargs='*', help="the server(s) which to power control\n{}".format(pprint.pformat(servers)))
 			args = parser.parse_args()
 			action = actions.get(args.action[0])
 			if len(args.system) < 1:
