@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 try:
 	import argparse
 	from time import sleep
