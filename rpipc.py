@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 try:
 	import pprint
 	import argparse
@@ -9,16 +9,16 @@ try:
 
 	servers = [
 		{
-			'power': 33,
-			'reset': 31,
-			'powerled': 32,
-			'ip': '10.4.1.40',
+			'power': 23,
+			'reset': 21,
+			'powerled': 22,
+			'ip': '10.4.0.30',
 		},
 		{
-			'power': 37,
-			'reset': 35,
-			'powerled': 36,
-			'ip': '10.4.1.41',
+			'power': 19,
+			'reset': 15,
+			'powerled': 16,
+			'ip': '10.4.0.31',
 		},
 	]
 	inputs = []
