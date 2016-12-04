@@ -1,0 +1,14 @@
+[
+  {
+    "power": 23,
+    "reset": 21,
+    "powerled": 22,
+    "ip": "192.168.1.2"
+  },
+  {
+    "power": 19,
+    "reset": 15,
+    "powerled": 16,
+    "ip": "really.any.thing.could.go.here.com"
+  }
+]

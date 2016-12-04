@@ -1,26 +1,20 @@
 #!/usr/bin/env python
+import pprint
+import argparse
+from time import sleep
+import json
+import os
+
 try:
-	import pprint
-	import argparse
-	from time import sleep
 	import RPi.GPIO as GPIO
 
 	GPIO.setmode(GPIO.BOARD)
 
-	servers = [
-		{
-			'power': 23,
-			'reset': 21,
-			'powerled': 22,
-			'ip': '10.4.0.30',
-		},
-		{
-			'power': 19,
-			'reset': 15,
-			'powerled': 16,
-			'ip': '10.4.0.31',
-		},
-	]
+	config_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),'rpipc.json')
+
+	with open(config_file) as config:
+		servers = json.load(config)
+		
 	inputs = []
 	outputs = []
 	for server in servers:
@@ -54,9 +48,9 @@ try:
 		pass
 
 	actions = {
-	        'power': power,
-	        'reset': reset,
-	        'kill': kill,
+		'power': power,
+		'reset': reset,
+		'kill': kill,
 		'status': status,
 	}
 
