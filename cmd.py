@@ -5,25 +5,22 @@ import argparse
 try:
 	import rpipc
 
+	def rpipc_action(name,fun):
+		status(name)
+		fun(name)
+		status(name)
+
 	def poweron(name):
-		status(name)
-		rpipc.poweron(name)
-		status(name)
+		rpipc_action(name,rpipc.poweron)
 
 	def poweroff(name):
-		status(name)
-		rpipc.poweroff(name)
-		status(name)
+		rpipc_action(name,rpipc.poweroff)
 
 	def reset(name):
-		status(name)
-		rpipc.reset(name)
-		status(name)
+		rpipc_action(name,rpipc.reset)
 
 	def kill(name):
-		status(name)
-		rpipc.kill(name)
-		status(name)
+		rpipc_action(name,rpipc.kill)
 
 	def status(name):
 		print('server {} is {}'.format(name,'on' if rpipc.status(name) else 'off'))
@@ -37,17 +34,13 @@ try:
 	}
 
 	def main():
-		rpipc.setup()
-		try:
-			parser = argparse.ArgumentParser(description='Server Power Control using a Raspberry Pi')
-			parser.add_argument('--action', choices=actions.keys(), default='status', help='send what signal')
-			parser.add_argument('--system', choices=rpipc.servers.keys(), nargs='*', default=rpipc.servers.keys(), help="the server(s) which to power control")
-			args = parser.parse_args()
-			action = actions.get(args.action)
-			for system in args.system:
-				action(system)
-		finally:
-			rpipc.close()
+		parser = argparse.ArgumentParser(description='Server Power Control using a Raspberry Pi')
+		parser.add_argument('--action', choices=actions.keys(), default='status', help='send what signal')
+		parser.add_argument('--system', choices=rpipc.servers.keys(), nargs='*', default=rpipc.servers.keys(), help="the server(s) which to power control")
+		args = parser.parse_args()
+		action = actions.get(args.action)
+		for system in args.system:
+			action(system)
 
 	if __name__ == "__main__":
 		main()
