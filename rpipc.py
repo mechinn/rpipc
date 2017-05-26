@@ -1,81 +1,60 @@
 #!/usr/bin/env python
 import pprint
-import argparse
+import os
 from time import sleep
 import json
-import os
+import RPi.GPIO as GPIO
 
-try:
-	import RPi.GPIO as GPIO
+CLICK=3
+HOLD=10
 
-	GPIO.setmode(GPIO.BOARD)
+config_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),'rpipc.json')
 
-	config_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),'rpipc.json')
+with open(config_file) as config:
+	servers = json.load(config)	
 
-	with open(config_file) as config:
-		servers = json.load(config)
-		
-	inputs = []
-	outputs = []
-	for server in servers:
-		inputs.append(server['powerled'])
-	for server in servers:
-		outputs.append(server['power'])
-		outputs.append(server['reset'])
-	
-	def power(server):
-		print('power')
-		print(server)
-		GPIO.output(server['power'], GPIO.LOW)
-		sleep(.10)
-		GPIO.output(server['power'], GPIO.HIGH)
+GPIO.setmode(GPIO.BOARD)
 
-	def reset(server):
-		print('reset')
-		print(server)
-		GPIO.output(server['reset'], GPIO.LOW)
-		sleep(.10)
-		GPIO.output(server['reset'], GPIO.HIGH)
+inputs = []
+outputs = []
+for name, server in servers.iteritems():
+	inputs.append(server['powerled'])
+	outputs.append(server['power'])
+	outputs.append(server['reset'])
 
-	def kill(server):
-		print('kill')
-		print(server)
-		GPIO.output(server['power'], GPIO.LOW)
-		sleep(10)
-		GPIO.output(server['power'], GPIO.HIGH)
+def setup():
+	GPIO.setup(inputs, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+	GPIO.setup(outputs, GPIO.OUT, initial=GPIO.HIGH)
 
-	def status(server):
-		pass
+def close():
+	GPIO.cleanup()
 
-	actions = {
-		'power': power,
-		'reset': reset,
-		'kill': kill,
-		'status': status,
-	}
+def _control_relay(pin, sec):
+	GPIO.output(pin, GPIO.LOW)
+	sleep(sec)
+	GPIO.output(pin, GPIO.HIGH)
 
-	def main():
-		GPIO.setup(inputs, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-		GPIO.setup(outputs, GPIO.OUT, initial=GPIO.HIGH)
-		try:
-			parser = argparse.ArgumentParser(description='Server Power Control using a Raspberry Pi')
-			parser.add_argument('action', choices=actions.keys(), nargs=1, help='send what signal')
-			parser.add_argument('system', type=int, nargs='*', help="the server(s) which to power control\n{}".format(pprint.pformat(servers)))
-			args = parser.parse_args()
-			action = actions.get(args.action[0])
-			if len(args.system) < 1:
-				system_list = range(len(servers))
-			else:
-				system_list = args.system
-			for system in system_list:
-				server = servers[system]
-				print('server {} is {}'.format(server['ip'], 'on' if GPIO.input(server['powerled']) else 'off'))
-				action(server)
-		finally:
-			GPIO.cleanup()
+def _get_state(pin):
+	return not GPIO.input(pin)
 
-	if __name__ == "__main__":
-		main()
+def _power(name,on,length):
+	server = servers[name]
+	if on != status(name):
+		_control_relay(server['power'],length)
 
-except RuntimeError:
-	print("Error importing RPi.GPIO!  This is probably because you need superuser privileges.  You can achieve this by using 'sudo' to run your script")
+def poweron(name):
+	_power(name,True,CLICK)
+
+def poweroff(name):
+	_power(name,False,CLICK)
+
+def kill(name):
+	_power(name,False,HOLD)
+
+def reset(name):
+	server = servers[name]
+	_control_relay(server['reset'],CLICK)
+
+def status(name):
+	server = servers[name]
+	return _get_state(server['powerled'])
