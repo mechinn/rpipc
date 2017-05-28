@@ -4,9 +4,11 @@ import json
 import rpipc 
 from pprint import pprint
 
-class ServersResource:
-    def on_get(self, req, resp):
-        resp.body = json.dumps(rpipc.servers)
+def sink(req, resp):
+    server = {}
+    for name in rpipc.servers.keys():
+        server[name] = {'power': 'on' if rpipc.status(name) else 'off'}
+    resp.body = json.dumps(server)
 
 class ServerResource:
     actions = {
@@ -15,6 +17,7 @@ class ServerResource:
         'reset': rpipc.reset,
         'kill': rpipc.kill,
     }
+
     def get_status(self,name):
         return json.dumps({
             'power': 'on' if rpipc.status(name) else 'off'
@@ -49,5 +52,5 @@ class ServerResource:
         resp.body = self.get_status(name)
  
 api = falcon.API()
-api.add_route('/', ServersResource())
+api.add_sink(sink)
 api.add_route('/server/{name}', ServerResource())

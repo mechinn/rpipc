@@ -6,7 +6,7 @@ import json
 import RPi.GPIO as GPIO
 import atexit
 
-CLICK=3
+CLICK=.2
 HOLD=10
 
 config_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),'rpipc.json')
