@@ -35,8 +35,8 @@ try:
 
 	def main():
 		parser = argparse.ArgumentParser(description='Server Power Control using a Raspberry Pi')
-		parser.add_argument('--action', choices=actions.keys(), default='status', help='send what signal')
-		parser.add_argument('--system', choices=rpipc.servers.keys(), nargs='*', default=rpipc.servers.keys(), help="the server(s) which to power control")
+		parser.add_argument('-a','--action', choices=actions.keys(), default='status', help='send what signal')
+		parser.add_argument('-s','--system', choices=rpipc.servers.keys(), nargs='*', default=rpipc.servers.keys(), help="the server(s) which to power control")
 		args = parser.parse_args()
 		action = actions.get(args.action)
 		for system in args.system:
